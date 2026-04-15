@@ -304,23 +304,22 @@ g.applymetrics = function(data, sf, ws3, metrics2do,
   }
   #================================================
   # Filter-free Euclidean norm related metrics:
-  EN = EuclideanNorm(data)
-  if (do.enmo == TRUE) {
-    ENMO = EN - 1
-    ENMO[which(ENMO < 0)] = 0 #turning negative values into zero
-    allmetrics$ENMO = averagePerEpoch(x = ENMO, sf, epochsize)
-  }
-  if (do.mad == TRUE) { # metric MAD (Mean Amplitude Deviation)
-    MEANS = rep(averagePerEpoch(x = EN, sf, epochsize), each = sf * epochsize)
-    MAD = abs(EN - MEANS)
-    allmetrics$MAD = averagePerEpoch(x = MAD, sf, epochsize)
-  }
-  if (do.en == TRUE) {
-    allmetrics$EN = averagePerEpoch(x = EN,sf,epochsize)
-  }
-  if (do.enmoa == TRUE) {
-    ENMOa = abs(EN - gravity)
-    allmetrics$ENMOa = averagePerEpoch(x = ENMOa, sf, epochsize)
+if (do.enmo == TRUE | do.en == TRUE | do.enmoa == TRUE | do.mad == TRUE) {
+    fused = enmoFusedCpp(
+      x = data[, 1],
+      y = data[, 2],
+      z = data[, 3],
+      sf = as.integer(sf),
+      epochsize = as.integer(epochsize),
+      do_enmo  = do.enmo,
+      do_en    = do.en,
+      do_enmoa = do.enmoa,
+      do_mad   = do.mad
+    )
+    if (do.enmo == TRUE) allmetrics$ENMO  = fused$ENMO
+    if (do.en == TRUE)   allmetrics$EN    = fused$EN
+    if (do.enmoa == TRUE) allmetrics$ENMOa = fused$ENMOa
+    if (do.mad == TRUE)  allmetrics$MAD   = fused$MAD
   }
   #================================================
   # Brond Counts)
