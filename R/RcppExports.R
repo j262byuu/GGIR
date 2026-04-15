@@ -9,6 +9,6 @@ sumPerEpochCpp <- function(x, sf, epochsize) {
     .Call(`_GGIR_sumPerEpochCpp`, x, sf, epochsize)
 }
 
-enmoFusedCpp <- function(x, y, z, sf, epochsize, do_enmo, do_en, do_enmoa, do_mad) {
-    .Call(`_GGIR_enmoFusedCpp`, x, y, z, sf, epochsize, do_enmo, do_en, do_enmoa, do_mad)
+enmoFusedCpp <- function(data, sf, epochsize, do_enmo, do_en, do_enmoa, do_mad) {
+    .Call(`_GGIR_enmoFusedCpp`, data, sf, epochsize, do_enmo, do_en, do_enmoa, do_mad)
 }
