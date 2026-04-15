@@ -15,7 +15,6 @@ NumericVector averagePerEpochCpp(const NumericVector& x, int sf, int epochsize);
 RcppExport SEXP _GGIR_averagePerEpochCpp(SEXP xSEXP, SEXP sfSEXP, SEXP epochsizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
     Rcpp::traits::input_parameter< int >::type sf(sfSEXP);
     Rcpp::traits::input_parameter< int >::type epochsize(epochsizeSEXP);
@@ -28,7 +27,6 @@ NumericVector sumPerEpochCpp(const NumericVector& x, int sf, int epochsize);
 RcppExport SEXP _GGIR_sumPerEpochCpp(SEXP xSEXP, SEXP sfSEXP, SEXP epochsizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
     Rcpp::traits::input_parameter< int >::type sf(sfSEXP);
     Rcpp::traits::input_parameter< int >::type epochsize(epochsizeSEXP);
@@ -37,21 +35,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // enmoFusedCpp
-List enmoFusedCpp(const NumericVector& x, const NumericVector& y, const NumericVector& z, int sf, int epochsize, bool do_enmo, bool do_en, bool do_enmoa, bool do_mad);
-RcppExport SEXP _GGIR_enmoFusedCpp(SEXP xSEXP, SEXP ySEXP, SEXP zSEXP, SEXP sfSEXP, SEXP epochsizeSEXP, SEXP do_enmoSEXP, SEXP do_enSEXP, SEXP do_enmoaSEXP, SEXP do_madSEXP) {
+List enmoFusedCpp(const NumericMatrix& data, int sf, int epochsize, bool do_enmo, bool do_en, bool do_enmoa, bool do_mad);
+RcppExport SEXP _GGIR_enmoFusedCpp(SEXP dataSEXP, SEXP sfSEXP, SEXP epochsizeSEXP, SEXP do_enmoSEXP, SEXP do_enSEXP, SEXP do_enmoaSEXP, SEXP do_madSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const NumericVector& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const NumericVector& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type data(dataSEXP);
     Rcpp::traits::input_parameter< int >::type sf(sfSEXP);
     Rcpp::traits::input_parameter< int >::type epochsize(epochsizeSEXP);
     Rcpp::traits::input_parameter< bool >::type do_enmo(do_enmoSEXP);
     Rcpp::traits::input_parameter< bool >::type do_en(do_enSEXP);
     Rcpp::traits::input_parameter< bool >::type do_enmoa(do_enmoaSEXP);
     Rcpp::traits::input_parameter< bool >::type do_mad(do_madSEXP);
-    rcpp_result_gen = Rcpp::wrap(enmoFusedCpp(x, y, z, sf, epochsize, do_enmo, do_en, do_enmoa, do_mad));
+    rcpp_result_gen = Rcpp::wrap(enmoFusedCpp(data, sf, epochsize, do_enmo, do_en, do_enmoa, do_mad));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -59,7 +54,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_GGIR_averagePerEpochCpp", (DL_FUNC) &_GGIR_averagePerEpochCpp, 3},
     {"_GGIR_sumPerEpochCpp", (DL_FUNC) &_GGIR_sumPerEpochCpp, 3},
-    {"_GGIR_enmoFusedCpp", (DL_FUNC) &_GGIR_enmoFusedCpp, 9},
+    {"_GGIR_enmoFusedCpp", (DL_FUNC) &_GGIR_enmoFusedCpp, 7},
     {NULL, NULL, 0}
 };
 
