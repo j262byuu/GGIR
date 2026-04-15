@@ -86,9 +86,15 @@ NumericVector sumPerEpochCpp(const NumericVector& x,
 //   - ENMOa: mean(|sqrt(x^2+y^2+z^2) - 1|) per epoch
 //   - MAD:   mean(|EN - epoch_mean_EN|) per epoch (requires 2nd pass)
 //
-// NA handling: if ANY sample in an epoch contains NA (in any axis),
-// ALL metrics for that epoch are set to NA. This matches R's behavior
-// where NA propagates through arithmetic operations.
+// NA handling note:
+// In original R code, cumsum() propagates NA forward — if one sample is NA,
+// that epoch AND all subsequent epochs become NA. This is a side effect of
+// cumsum's behavior, not an intentional design choice.
+// This C++ implementation limits NA to the affected epoch only: if any sample
+// in an epoch is NA, that epoch returns NA, but subsequent clean epochs are
+// unaffected. This is a deliberate improvement over the original behavior.
+// In practice, data reaching g.applymetrics has already been through
+// g.imputeTimegaps, so NA is rarely present.
 //
 // Memory: only allocates output vectors (n_epochs length, not n_samples)
 // vs original R: allocates ~5 intermediate vectors of n_samples length
