@@ -304,11 +304,11 @@ g.applymetrics = function(data, sf, ws3, metrics2do,
   }
   #================================================
   # Filter-free Euclidean norm related metrics:
-if (do.enmo == TRUE | do.en == TRUE | do.enmoa == TRUE | do.mad == TRUE) {
+  # Uses fused C++ implementation for ENMO/EN/ENMOa/MAD when any are requested.
+  # NA handling: if any sample in an epoch is NA, all metrics for that epoch are NA.
+  if (do.enmo == TRUE | do.en == TRUE | do.enmoa == TRUE | do.mad == TRUE) {
     fused = enmoFusedCpp(
-      x = data[, 1],
-      y = data[, 2],
-      z = data[, 3],
+      data = as.matrix(data),
       sf = as.integer(sf),
       epochsize = as.integer(epochsize),
       do_enmo  = do.enmo,
