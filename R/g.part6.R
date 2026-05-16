@@ -604,6 +604,8 @@ g.part6 = function(datadir = c(), metadatadir = c(), f0 = c(), f1 = c(),
                                   envir = as.environment(asNamespace("GGIR"))
           )
           parallel::clusterEvalQ(cl, Sys.setlocale("LC_TIME", "C"))
+          parallel::clusterEvalQ(cl, Sys.setenv(OMP_NUM_THREADS = "1"))
+          parallel::clusterEvalQ(cl, data.table::setDTthreads(1L))
           doParallel::registerDoParallel(cl)
         } else {
           # Don't process in parallel if only one core
