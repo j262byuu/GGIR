@@ -304,7 +304,10 @@ g.applymetrics = function(data, sf, ws3, metrics2do,
   }
   #================================================
   # Filter-free Euclidean norm related metrics:
-  EN = EuclideanNorm(data)
+  # EN is only consumed by the four blocks below, so skip it when none are requested.
+  if (do.enmo == TRUE || do.mad == TRUE || do.en == TRUE || do.enmoa == TRUE) {
+    EN = EuclideanNorm(data)
+  }
   if (do.enmo == TRUE) {
     ENMO = EN - 1
     ENMO[which(ENMO < 0)] = 0 #turning negative values into zero
