@@ -168,7 +168,7 @@ g.getmeta = function(datafile, params_metrics = c(), params_rawdata = c(),
                             PreviousLastTime = PreviousLastTime,
                             params_rawdata = params_rawdata, params_general = params_general, 
                             header = header)
-    header = accread$header
+    header = accread$P$header # cache parsed header so later chunks skip readHeader
 
     if ("PreviousLastValue" %in% names(accread$P)) { # output when reading ad-hoc csv
       PreviousLastValue = accread$P$PreviousLastValue

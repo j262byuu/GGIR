@@ -111,7 +111,7 @@ g.calibrate = function(datafile, params_rawdata = c(),
                             PreviousEndPage = PreviousEndPage, inspectfileobject = INFI,
                             params_rawdata = params_rawdata, params_general = params_general,
                             header = header)
-    header = accread$header
+    header = accread$P$header # cache parsed header so later chunks skip readHeader
     isLastBlock = accread$isLastBlock
     PreviousEndPage = accread$endpage
 
