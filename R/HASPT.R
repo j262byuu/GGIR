@@ -109,7 +109,29 @@ HASPT = function(angle, params_sleep = NULL, ws3 = 5,
       }
       k1 = 5 * (60/ws3)
       
-      x = zoo::rollapply(angle, width = k1, FUN = medabsdi, fill = 0) # 5 minute rolling median of the absolute difference
+      # 5 minute rolling median of the absolute difference.
+      # zoo::rollapply calls medabsdi once per epoch (~17k times per night), which
+      # dominates part 3 under the default HDCZA guider. stats::runmed does the same
+      # running median in compiled code.
+      # Equivalence: for an even width w, zoo's centred window uses offsets
+      # -(w/2-1)..+(w/2), so output i covers w angles, i.e. the w-1 absolute
+      # differences d[(i-(w/2-1)):(i+(w/2-1))] -- a symmetric window of width w-1
+      # centred on d[i], which is exactly runmed(k = w-1). w-1 is odd, so the median
+      # is an order statistic rather than the mean of two values, and no new
+      # floating point value is produced.
+      # Three cases fall back to the original path because the derivation does not
+      # hold: NA input (median propagates NA, runmed does not accept it), odd k1
+      # (ws3 = 60 gives k1 = 5; runmed needs an odd width, and zoo maps odd widths
+      # differently), and vectors too short for one window.
+      use_runmed = !anyNA(angle) && k1 %% 2 == 0 && length(angle) - 1 >= k1 - 1
+      if (use_runmed == TRUE) {
+        half = k1 %/% 2
+        d = abs(diff(angle))
+        r = stats::runmed(d, k = k1 - 1L, endrule = "keep")
+        x = c(rep(0, half - 1), r[half:(length(d) - (half - 1))], rep(0, half))
+      } else {
+        x = zoo::rollapply(angle, width = k1, FUN = medabsdi, fill = 0)
+      }
       if (is.null(params_sleep[["HDCZA_threshold"]])) {
         params_sleep[["HDCZA_threshold"]] = c(10, 15)
       }
