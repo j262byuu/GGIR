@@ -157,7 +157,7 @@ g.part3 = function(metadatadir = c(), f0, f1, myfun = c(),
       if (length(params_general[["maxNcores"]]) == 0) params_general[["maxNcores"]] = Ncores
       Ncores2use = min(c(Ncores - 1, params_general[["maxNcores"]], (f1 - f0) + 1))
       if (Ncores2use > 1) {
-        cl <- parallel::makeCluster(Ncores2use) # not to overload your computer
+        cl <- makeSingleThreadedCluster(Ncores2use) # not to overload your computer
         on.exit(parallel::stopCluster(cl), add = TRUE) # ensure workers are released on error/interrupt too
         parallel::clusterExport(cl = cl,
                                 varlist = c(unclass(lsf.str(envir = asNamespace("GGIR"), all = T)),
