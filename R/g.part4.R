@@ -178,6 +178,16 @@ g.part4 = function(datadir = c(), metadatadir = c(), f0 = f0, f1 = f1,
     # allow for forced relying on guider based on external data_cleaning_file
     DaCleanFile = data.table::fread(params_cleaning[["data_cleaning_file"]], data.table = FALSE)
   }
+  # GGIRversion is constant for the whole run; installed.packages() scans every
+  # library path and R's own docs call it slow, so resolve it once rather than
+  # once per recording. Held under a distinct name because load() of a part 3
+  # milestone inside the loop below writes a `GGIRversion` object (a
+  # package_version, not a character) into this environment and would clobber it.
+  GGIRversion_run = "GGIR not used"
+  if (is.element('GGIR', installed.packages()[,1])) {
+    GGIRversion_run = as.character(utils::packageVersion("GGIR"))
+    if (length(GGIRversion_run) != 1) GGIRversion_run = sessionInfo()$otherPkgs$GGIR$Version
+  }
   # =================================================================
   # start of loop through the
   # participants
@@ -1198,11 +1208,7 @@ g.part4 = function(datadir = c(), metadatadir = c(), f0 = f0, f1 = f1,
           nightsummary = nightsummary[, which(colnames(nightsummary) %in% c("sleeplatency", "sleepefficiency") ==
                                                 FALSE)]
         }
-        GGIRversion = "GGIR not used"
-        if (is.element('GGIR', installed.packages()[,1])) {
-          GGIRversion = as.character(utils::packageVersion("GGIR"))
-          if (length(GGIRversion) != 1) GGIRversion = sessionInfo()$otherPkgs$GGIR$Version
-        }
+        GGIRversion = GGIRversion_run # overwrite whatever load() brought in
         if (nrow(nightsummary) > 0) {
           nightsummary$GGIRversion = GGIRversion
         }
