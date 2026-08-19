@@ -375,6 +375,15 @@ g.part6 = function(datadir = c(), metadatadir = c(), f0 = c(), f1 = c(),
         ds_names = rep("", ncol(dsummary))
         lightpeak_available = "lightpeak" %in% names(ts)
         si = 1
+        # format(ts$time) inside the nest below is invariant across the whole
+        # wi/wini loop: ts$time is set to ts$timestamp at the top of every wi
+        # iteration, and ts$timestamp is never assigned anywhere in g.part6. As
+        # written it formatted the full recording once per (window x winhr) --
+        # 1.03 s per call at 121k epochs, so 14 s for a 7-day recording with two
+        # winhr values. Resolve it lazily so it costs nothing when the branch
+        # that needs it is never reached, and at most one format() per recording
+        # when it is.
+        timestamp_formatted = NULL
         for (wi in window_number) {
           gi = 1
           sse = which(ts$window == wi)
@@ -413,7 +422,8 @@ g.part6 = function(datadir = c(), metadatadir = c(), f0 = c(), f1 = c(),
                 M5HOUR = TIMErunwin[which(ACCrunwin == M5VALUE)[1]]
                 if (lightpeak_available == TRUE) {
                   if (length(unlist(strsplit(M5HOUR, " |T"))) == 1) M5HOUR = paste0(M5HOUR, " 00:00:00")
-                  startM5 = which(format(ts$time) == M5HOUR)
+                  if (is.null(timestamp_formatted)) timestamp_formatted = format(ts$timestamp)
+                  startM5 = which(timestamp_formatted == M5HOUR)
                   M5_mean_peakLUX = round(mean(ts$lightpeak[startM5[1]:(startM5[1] + (wini*60*(60/epochSize)))], na.rm = TRUE), digits = 1)
                   M5_max_peakLUX = round(max(ts$lightpeak[startM5[1]:(startM5[1] + (wini*60*(60/epochSize)))], na.rm = TRUE), digits = 1)
                 }
