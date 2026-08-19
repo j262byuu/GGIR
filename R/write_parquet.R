@@ -867,9 +867,31 @@ build_epoch_lists_by_day = function(metadatadir = c(),
   keys = keys[order(keys$ID, keys$calendar_date), , drop = FALSE]
   epochs_col = vector("list", nrow(keys))
 
+  # Index the rows by ID + calendar_date once. Scanning both columns inside the
+  # loop below made this O(nrow(keys) * nrow(epoch_df)), i.e. quadratic in study
+  # size, because epoch_df holds every epoch of every recording.
+  # Rows with a missing key are left out of the index so that a lookup returns
+  # nothing for them, matching which(), which drops NA comparisons.
+  key_ok = !is.na(epoch_df$ID) & !is.na(epoch_df$calendar_date)
+  # Key on integer level codes rather than on the values themselves. Pasting the
+  # values is not injective: as.character() renders a double to limited
+  # significant digits, so two IDs that `==` tells apart can produce one string,
+  # and a value containing the separator byte can straddle it. Either would merge
+  # groups that the original comparison kept separate. match() compares exactly,
+  # and the codes it returns are small integers, so the pasted key is injective.
+  id_lvl = unique(epoch_df$ID[key_ok])
+  date_lvl = unique(epoch_df$calendar_date[key_ok])
+  mkkey = function(id, dt) paste(match(id, id_lvl), match(dt, date_lvl), sep = "\r")
+  rows_by_key = split(seq_len(nrow(epoch_df))[key_ok],
+                      mkkey(epoch_df$ID[key_ok], epoch_df$calendar_date[key_ok]))
+  # Resolve every key to a list position up front. Indexing a list by name is a
+  # linear scan of the names attribute, so looking up by name inside the loop
+  # would leave this quadratic in the number of ID/date groups; match() hashes.
+  key_pos = match(mkkey(keys$ID, keys$calendar_date), names(rows_by_key))
+  key_pos[is.na(keys$ID) | is.na(keys$calendar_date)] = NA_integer_
+
   for (i in seq_len(nrow(keys))) {
-    sel = which(epoch_df$ID == keys$ID[i] &
-                  epoch_df$calendar_date == keys$calendar_date[i])
+    sel = if (is.na(key_pos[i])) integer(0) else rows_by_key[[key_pos[i]]]
     sub = epoch_df[sel, , drop = FALSE]
     if (nrow(sub) == 0) {
       epochs_col[[i]] = data.frame()
