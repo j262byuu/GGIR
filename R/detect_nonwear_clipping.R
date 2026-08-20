@@ -67,8 +67,9 @@ detect_nonwear_clipping = function(data = c(), windowsizes = c(5, 900, 3600), sf
         }
       }
       # Summarise clipping
-      ClipLog = ClipLog / (MediumEpochSize) # Express as fraction of epoch length
-      ClipLogCollapsed[h] = max(c(ClipLog[h, 1], ClipLog[h, 2], ClipLog[h, 3])) #indicator of clipping
+      # Express as fraction of epoch length. Only row h is ever read, so divide
+      # that row instead of the whole matrix on every iteration.
+      ClipLogCollapsed[h] = max(c(ClipLog[h, 1], ClipLog[h, 2], ClipLog[h, 3])) / MediumEpochSize #indicator of clipping
       
       # Summarise nonwear
       if ("wear" %in% colnames(data)) {
