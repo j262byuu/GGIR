@@ -359,6 +359,10 @@ GGIR(f0=f0,f1=f1,...)
 
 You will need to update the `...` in the last line with the parameters you used for `GGIR`. Note that `f0=f0,f1=f1` is essential for this to work. The values of `f0` and `f1` are passed on from the bash script. Once this is all setup, you will need to call `bash submit.sh` from the command line. With the help of computing clusters, GGIR has successfully been run on some of the world’s largest accelerometer datasets such as UK Biobank and the German NAKO study.
 
+### On DNAnexus
+
+UK Biobank accelerometer data is analysed on the DNAnexus Research Analysis Platform, where GGIR is normally run either through the Swiss Army Knife app with a Docker image of your own, or from an RStudio session on the platform. Neither of those sets the thread variables described under [Processing time](#processing-time), so if you process many files there in parallel it is worth setting them yourself. The same applies to a plain `rocker/r-ver` container, where the BLAS is threaded and nothing limits it.
+
 ## Processing time
 
 The time to process a typical seven-day recording should be anywhere in between 3 and 10 minutes depending on the sample frequency of the recording, the sensor brand, data format, the exact configuration of GGIR, and the specifications of your computer. If you are observing processing times of 20 minutes or longer for a seven-day recording then probably you are slowed down by other factors.
