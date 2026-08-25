@@ -229,11 +229,21 @@ g.report.part4 = function(datadir = c(), metadatadir = c(), f0 = c(), f1 = c(),
         # unique filenames, previously we used unique IDs, but that would not allow
         # for repeated measurements of the same ID to be summarised separately
         uniquefn = unique(nightsummary$filename) 
+        # Index the rows by filename once, instead of rescanning the whole
+        # filename column for every file below. nightsummary is not modified
+        # inside the loop (its rows and columns are fixed earlier in this
+        # dotwice iteration), so the index stays valid throughout.
+        # Resolve each filename to a list position up front with match(), which
+        # hashes: indexing a list by name is a linear scan of the names
+        # attribute, so doing that inside the loop would leave the whole thing
+        # quadratic in file count, just with a smaller constant.
+        rows_by_file = split(seq_len(nrow(nightsummary)), nightsummary$filename)
+        rows_by_file_pos = match(uniquefn, names(rows_by_file))
         if (nrow(nightsummary) > 0) {
           for (i in 1:length(uniquefn)) {
             personSummarynames = c()  #moved here on 3/12/2014
             # fully cleaned from nights that need to be deleted
-            this_file = which(nightsummary$filename == uniquefn[i])
+            this_file = if (is.na(rows_by_file_pos[i])) integer(0) else rows_by_file[[rows_by_file_pos[i]]]
             nightsummary.tmp = nightsummary[this_file, ]  #back up
             udef = as.character(unique(nightsummary.tmp$sleepparam))
             if (length(which(as.character(udef) == "0") > 0))
@@ -380,14 +390,13 @@ g.report.part4 = function(datadir = c(), metadatadir = c(), f0 = c(), f1 = c(),
             if (only.use.sleeplog == FALSE) {
               # when sleep log is not available
               if (dotwice == 2) {
-                CRIT = which(nightsummary$filename == uniquefn[i] &
-                               (nightsummary$cleaningcode == 0 | nightsummary$cleaningcode == 1))
+                CRIT = this_file[which(nightsummary$cleaningcode[this_file] == 0 |
+                                         nightsummary$cleaningcode[this_file] == 1)]
               } else {
-                CRIT = which(nightsummary$filename == uniquefn[i])
+                CRIT = this_file
               }
             } else {
-              CRIT = which(nightsummary$filename == uniquefn[i] &
-                             nightsummary$cleaningcode == 0)  #when sleep log is available
+              CRIT = this_file[which(nightsummary$cleaningcode[this_file] == 0)]  #when sleep log is available
             }
             personSummarynames_backup = c()
             if (length(CRIT) > 0) {
