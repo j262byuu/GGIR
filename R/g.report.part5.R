@@ -572,7 +572,10 @@ g.report.part5 = function(metadatadir = c(), f0 = c(), f1 = c(), loglocation = c
                     df2 = function(x) df2 = length(which(x == cval)) # check which values meets criterion
                     if (window == "Segments") by = list(df$filename, df$window)
                     if (window != "Segments") by = list(df$filename)
-                    mmm = as.data.frame(aggregate.data.frame(df, by = by, FUN = df2),
+                    # only Group.1/Group.2 and the `nameold` column are read below,
+                    # so aggregate that one column rather than all ~13 of them
+                    mmm = as.data.frame(aggregate.data.frame(df[, nameold, drop = FALSE],
+                                                             by = by, FUN = df2),
                                         stringsAsFactors = TRUE)
                     mmm2 = data.frame(
                       filename = mmm$Group.1,
