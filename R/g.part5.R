@@ -87,6 +87,17 @@ g.part5 = function(datadir = c(), metadatadir = c(), f0=c(), f1=c(),
   } else {
     sleeplog = logs_diaries = c()
   }
+  # Listed here rather than inside main_part5, which runs once per recording and
+  # was therefore listing all three directories again for every file: 3F
+  # directory listings of F entries each. Part 5 never writes into basic,
+  # ms2.out or ms4.out, so one listing up front is the same data.
+  # Placed after the load() above on purpose: load() writes into this environment,
+  # so anything cached before it could in principle be overwritten by an object of
+  # the same name inside the sleeplog file. Nothing in GGIR saves an `fnames.*`
+  # object, but listing after the load removes the question entirely.
+  fnames.ms1 = dir(paste(metadatadir, "/meta/basic", sep = ""))
+  fnames.ms2 = dir(paste(metadatadir, "/meta/ms2.out", sep = ""))
+  fnames.ms4 = dir(paste(metadatadir, "/meta/ms4.out", sep = ""))
   # Extract activity diary if applicable
   if (is.character(params_247[["qwindow"]])) {
     if (length(grep(pattern = "onlyfilter|filteronly", x = params_247[["qwindow"]])) == 0) {
@@ -132,14 +143,12 @@ g.part5 = function(datadir = c(), metadatadir = c(), f0=c(), f1=c(),
                         params_247 = c(), params_phyact = c(),
                         params_cleaning = c(), params_output = c(),
                         params_general = c(), ms5.out, ms5.outraw,
-                        fnames.ms3, sleeplog, logs_diaries,
+                        fnames.ms3, fnames.ms1, fnames.ms2, fnames.ms4,
+                        sleeplog, logs_diaries,
                         referencefnames, folderstructure,
                         fullfilenames, foldername, ffdone, verbose) {
     tail_expansion_log =  desiredtz_part1 = NULL
     filename_dir = NULL # to be loaded
-    fnames.ms1 = dir(paste(metadatadir, "/meta/basic", sep = ""))
-    fnames.ms2 = dir(paste(metadatadir, "/meta/ms2.out", sep = ""))
-    fnames.ms4 = dir(paste(metadatadir, "/meta/ms4.out", sep = ""))
     nfeatures = 500
     ws3 = params_general[["windowsizes"]][1]
     ds_names = rep("",nfeatures)
@@ -802,7 +811,8 @@ g.part5 = function(datadir = c(), metadatadir = c(), f0=c(), f1=c(),
                                                   params_247, params_phyact,
                                                   params_cleaning, params_output,
                                                   params_general, ms5.out, ms5.outraw,
-                                                  fnames.ms3, sleeplog, logs_diaries,
+                                                  fnames.ms3, fnames.ms1, fnames.ms2, fnames.ms4,
+                                                  sleeplog, logs_diaries,
                                                   referencefnames, folderstructure,
                                                   fullfilenames, foldername, ffdone, verbose)
                                      })
@@ -824,7 +834,8 @@ g.part5 = function(datadir = c(), metadatadir = c(), f0=c(), f1=c(),
                    params_247, params_phyact,
                    params_cleaning, params_output,
                    params_general, ms5.out, ms5.outraw,
-                   fnames.ms3, sleeplog, logs_diaries,
+                   fnames.ms3, fnames.ms1, fnames.ms2, fnames.ms4,
+                   sleeplog, logs_diaries,
                    referencefnames, folderstructure,
                    fullfilenames, foldername, ffdone, verbose)
       )
