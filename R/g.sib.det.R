@@ -275,14 +275,17 @@ g.sib.det = function(M, IMP, I, twd = c(-12, 12),
         tmpACC = ACC[tSegment]
         windowRL = round((3600/ws3) * 5)
         if ((windowRL / 2) == round(windowRL / 2)) windowRL = windowRL + 1
-        # fill = "extend" interpolates the window edges, which needs at least
-        # two non-missing values; with fewer, every statistic below is missing
-        # anyway, so fall back to the same value as a too-short segment.
-        if (length(tmpACC) <= windowRL || length(which(!is.na(tmpACC))) < 2) {
+        if (length(tmpACC) <= windowRL) {
           L5 = 0
         } else {
-          ZRM = zoo::rollmean(x = tmpACC, k = windowRL, fill = "extend", align = "center")
-          ZRMsd = sd(ZRM, na.rm = TRUE)
+          # A guard on tmpACC is not enough: one missing epoch anywhere in a
+          # window makes that window missing, so a segment with plenty of
+          # observations can still give an all-missing rolling mean, and then
+          # fill = "extend" has nothing to interpolate from and aborts the file.
+          ZRM = tryCatch(zoo::rollmean(x = tmpACC, k = windowRL, fill = "extend",
+                                       align = "center"),
+                         error = function(e) NULL)
+          ZRMsd = if (is.null(ZRM)) NA else sd(ZRM, na.rm = TRUE)
           if (is.na(ZRMsd) || ZRMsd == 0) {
             L5 = 0
           } else {
