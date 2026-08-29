@@ -273,8 +273,8 @@ HASIB = function(HASIB.algo = "vanHees2015", timethreshold = c(), anglethreshold
     nonzero = which(activity2 != 0)
     if (length(nonzero) > 0) {
       activityThreshold = sd(activity2[nonzero], na.rm = TRUE) * 0.05
-      if (activityThreshold < min(activity)) {
-        activityThreshold = quantile(activity2[nonzero], probs = 0.1)
+      if (activityThreshold < min(activity, na.rm = TRUE)) {
+        activityThreshold = quantile(activity2[nonzero], probs = 0.1, na.rm = TRUE)
       }
     } else {
       activityThreshold = 0
