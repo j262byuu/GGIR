@@ -26,9 +26,11 @@ g.IVIS = function(Xi, epochSize = 60, threshold = NULL) {
       deltaXi = diff(Xi)^2
       N = length(Xi[!is.na(Xi)])
       
-      # phi
-      model = arima(Xi[!is.na(Xi)], order = c(1, 0, 0))
-      phi = model$coef[[1]]
+      # phi: arima does not converge on every series a sensor can produce
+      # (a stuck device gives a near-constant or quasi-periodic Xi). Losing
+      # phi is acceptable, losing IS and IV with it is not.
+      model = try(arima(Xi[!is.na(Xi)], order = c(1, 0, 0)), silent = TRUE)
+      if (!inherits(model, "try-error")) phi = model$coef[[1]]
 
       # IS: lower is less synchronized with the 24 hour zeitgeber
       ISnum = sum((Xh - Xm)^2, na.rm = TRUE) * N

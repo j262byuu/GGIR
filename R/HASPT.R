@@ -172,9 +172,11 @@ HASPT = function(angle, params_sleep = NULL, ws3 = 5,
       if (length(nonzero) > 0) {
         activityThreshold = sd(x[nonzero], na.rm = TRUE) * 0.05
         # For sensewear external data this will not work as it mostly has values of 1 and up.
-        if (activityThreshold < min(activity)) {
-          activityThreshold = quantile(x, probs = 0.1)
+        if (isTRUE(activityThreshold < min(activity, na.rm = TRUE))) {
+          activityThreshold = quantile(x, probs = 0.1, na.rm = TRUE)
         }
+        # a segment that is entirely missing offers no basis for a threshold
+        if (is.na(activityThreshold)) activityThreshold = 0
       } else {
         activityThreshold = 0
       }

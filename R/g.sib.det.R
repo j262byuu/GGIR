@@ -275,17 +275,21 @@ g.sib.det = function(M, IMP, I, twd = c(-12, 12),
         tmpACC = ACC[tSegment]
         windowRL = round((3600/ws3) * 5)
         if ((windowRL / 2) == round(windowRL / 2)) windowRL = windowRL + 1
-        if (length(tmpACC) <= windowRL) {
+        # fill = "extend" interpolates the window edges, which needs at least
+        # two non-missing values; with fewer, every statistic below is missing
+        # anyway, so fall back to the same value as a too-short segment.
+        if (length(tmpACC) <= windowRL || length(which(!is.na(tmpACC))) < 2) {
           L5 = 0
         } else {
           ZRM = zoo::rollmean(x = tmpACC, k = windowRL, fill = "extend", align = "center")
-          L5 = which(ZRM == min(ZRM))[1]
-          if (sd(ZRM) == 0) {
+          ZRMsd = sd(ZRM, na.rm = TRUE)
+          if (is.na(ZRMsd) || ZRMsd == 0) {
             L5 = 0
           } else {
+            L5 = which(ZRM == min(ZRM, na.rm = TRUE))[1]
             L5 = (L5  / (3600 / ws3)) + 12
           }
-          if (length(L5) == 0) L5 = 0 #if there is no L5, because full day is zero
+          if (length(L5) == 0 || is.na(L5)) L5 = 0 #if there is no L5, because full day is zero
         }
         L5list[sptei] = L5
         # Estimate Sleep Period Time window, because this will be used by g.part4 if sleeplog is not available
